@@ -1,4 +1,5 @@
 local collision = require("collision")
+local helper = require("helper")
 
 local properties = {
 	dy = 0, -- delta y (vertical displacement)
@@ -29,11 +30,7 @@ function mt:__newindex(key, val)
 	end
 end
 
-local SPEED = 1000
-
-local function get_slack()
-	return math.random(0.8, 1.2)
-end
+local SPEED = 800
 
 local ball = {
 	x = screen.width / 2,
@@ -47,10 +44,15 @@ local ball = {
 	update = function(self, dt)
 		if collision.detect(self, objects.player) then
 			self.dx = -self.dx
+
 			if love.keyboard.isDown("up") then
-				self.dy = self.negative_speed * get_slack()
+				local zone = collision.compute_zone(self, objects.player)
+				self.dy = self.dy + self.negative_speed * zone * helper.get_slack()
 			elseif love.keyboard.isDown("down") then
-				self.dy = self.speed * get_slack()
+				local zone = collision.compute_zone(self, objects.player)
+				self.dy = self.dy + self.speed * zone * helper.get_slack()
+			else
+				self.dy = self.dy * 0.9
 			end
 		elseif collision.detect(self, objects.opponent) then
 			self.dx = -self.dx

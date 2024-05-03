@@ -23,8 +23,8 @@ function collision.detect(x, y)
 end
 
 function collision.where(x, y)
-	local x_center = (x.y + x.height) / 2
-	local y_center = (y.y + y.height) / 2
+	local x_center = (x.y * 2 + x.height) / 2
+	local y_center = (y.y * 2 + y.height) / 2
 
 	local distance = y_center - x_center
 
@@ -32,17 +32,33 @@ function collision.where(x, y)
 	return distance
 end
 
-local Zone = {
-	"ONE",
-	"TWO",
-	"THREE",
-}
+function collision.compute_zone(x, y)
+	local ZONE_AMOUNT = 5
+	local LENGTH_HALF = y.height / 2
+	local ZONE_LENGTH = LENGTH_HALF / ZONE_AMOUNT
 
-function collision.zone(x, y)
-	local distance_from_center = collision.where(x, y)
-	-- TODO: FINISH FUNCTION
-	if 0 < math.abs(distance_from_center) < y.height then
-		return Zone.ONE
+	local distance_from_center = math.abs(collision.where(x, y))
+
+	local sizes = {
+		one = ZONE_LENGTH,
+		two = ZONE_LENGTH * 2,
+		three = ZONE_LENGTH * 3,
+		four = ZONE_LENGTH * 4,
+		five = ZONE_LENGTH * 5,
+	}
+
+	if 0 < distance_from_center and distance_from_center < sizes.one then
+		return 1
+	elseif distance_from_center < sizes.two then
+		return 2
+	elseif distance_from_center < sizes.three then
+		return 3
+	elseif distance_from_center < sizes.four then
+		return 4
+	elseif distance_from_center < sizes.five then
+		return 5
+	else
+		error(string.format("Out of bounds! distance_from_center: %i", distance_from_center))
 	end
 end
 
