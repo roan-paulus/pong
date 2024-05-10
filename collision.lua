@@ -1,15 +1,15 @@
 local collision = {}
 
 ---Check if a collides with b
----@param x table
+---@param object_a table
 ---@param y table
 ---@return boolean
-function collision.detect(x, y)
+function collision.detect(object_a, y)
 	local a = {
-		left = x.x,
-		right = x.x + x.width,
-		top = x.y,
-		bottom = x.y + x.height,
+		left = object_a.x,
+		right = object_a.x + object_a.width,
+		top = object_a.y,
+		bottom = object_a.y + object_a.height,
 	}
 
 	local b = {
@@ -18,6 +18,8 @@ function collision.detect(x, y)
 		top = y.y,
 		bottom = y.y + y.height,
 	}
+
+	object_a.colliding = true
 
 	return a.right > b.left and a.left < b.right and a.top < b.bottom and a.bottom > b.top
 end
@@ -58,7 +60,8 @@ function collision.compute_zone(x, y)
 	elseif distance_from_center < sizes.five then
 		return 5
 	else
-		error(string.format("Out of bounds! distance_from_center: %i", distance_from_center))
+		print(string.format("Out of bounds! distance_from_center: %i", distance_from_center))
+		return 5
 	end
 end
 

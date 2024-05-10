@@ -32,14 +32,20 @@ end
 
 local SPEED = 800
 
+local function set_prev_frame(obj)
+	obj.x, obj.y = obj.prev.x, obj.prev.y
+end
+
 local ball = {
 	x = screen.width / 2,
 	y = screen.height / 2,
+	prev = { x = nil, y = nil },
 	radius = 10,
 	speed = SPEED,
 	negative_speed = -SPEED,
+	colliding = false,
 
-	dx = 1000, -- delta x (horizontal displacement)
+	dx = 1000,
 
 	update = function(self, dt)
 		if collision.detect(self, objects.player) then
@@ -70,14 +76,24 @@ local ball = {
 			game.score = game.score + 1
 		end
 
+		if self.colliding then
+			set_prev_frame(self)
+			self.colliding = false
+		end
+
 		self.x = self.x + self.dx * dt
 		self.y = self.y + self.dy * dt
+
+		self.prev.x = self.x
+		self.prev.y = self.y
 	end,
 
 	draw = function(self)
 		love.graphics.circle("fill", self.x, self.y, self.radius)
 	end,
 }
+ball.prev.x = ball.x
+ball.prev.y = ball.y
 
 setmetatable(ball, mt)
 
