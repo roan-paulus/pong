@@ -21,7 +21,7 @@ function Bar:new(x, y)
 		x = x,
 		y = y,
 		width = 40,
-		height = 400,
+		height = 300,
 		speed = 600,
 	}
 	setmetatable(t, Bar.mt)
@@ -37,6 +37,7 @@ function Bar:moveDown(dt)
 end
 
 function Bar:draw()
+	love.graphics.setColor(0, 0.5, 1)
 	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 end
 

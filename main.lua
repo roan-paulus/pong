@@ -1,9 +1,11 @@
 _G.love = require("love")
 local Bar = require("bar")
 local collision = require("collision")
+local Ball = require("ball")
 
 function love.load()
 	love.window.setFullscreen(true)
+	love.graphics.setFont(love.graphics.newFont(33))
 
 	game = {
 		score = 0,
@@ -13,6 +15,9 @@ function love.load()
 		width = love.graphics.getWidth(),
 		height = love.graphics.getHeight(),
 	}
+
+	-- Default ball properties
+	X, Y = screen.width / 2, screen.height / 2
 
 	-- [[ Define objects ]]
 	local PADDING = 99999999
@@ -44,15 +49,11 @@ function love.load()
 			height = screen.height,
 		},
 		player = Bar:new(20, 200),
-		opponent = Bar:new(0, 200),
-		ball = require("ball"),
+		opponent = require("opponent"),
+		ball = Ball(X, Y),
 	}
 
 	objects.opponent.x = screen.width - objects.opponent.width
-
-	-- Set a width and height to conform to what collision expects for now...
-	objects.ball.width = objects.ball.radius * 2
-	objects.ball.height = objects.ball.width
 end
 
 function love.update(dt)
@@ -65,6 +66,17 @@ function love.update(dt)
 	end
 
 	objects.ball:update(dt)
+	if collision.detect(objects.ball, objects.left_wall) then
+		if game.score > 0 then
+			game.score = game.score - 1
+		end
+		objects.ball = Ball(X, Y)
+	elseif collision.detect(objects.ball, objects.right_wall) then
+		game.score = game.score + 1
+		objects.ball = Ball(X, Y)
+	end
+
+	objects.opponent:update(dt, objects.ball)
 end
 
 function love.draw()
@@ -72,6 +84,7 @@ function love.draw()
 	objects.opponent:draw()
 	objects.ball:draw()
 
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.print(tostring(game.score), screen.width / 2, screen.height / 50)
 end
 

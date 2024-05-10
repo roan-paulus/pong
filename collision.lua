@@ -19,9 +19,13 @@ function collision.detect(object_a, y)
 		bottom = y.y + y.height,
 	}
 
-	object_a.colliding = true
-
-	return a.right > b.left and a.left < b.right and a.top < b.bottom and a.bottom > b.top
+	if a.right > b.left and a.left < b.right and a.top < b.bottom and a.bottom > b.top then
+		object_a.colliding = true
+		return true
+	else
+		object_a.colliding = false
+		return false
+	end
 end
 
 function collision.where(x, y)

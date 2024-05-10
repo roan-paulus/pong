@@ -1,100 +1,106 @@
 local collision = require("collision")
 local helper = require("helper")
 
-local properties = {
-	dy = 0, -- delta y (vertical displacement)
-}
+local Ball = {}
+Ball.mt = {}
 
-local mt = {}
+function Ball.mt:__call(x, y, radius, speed)
+	-- Defaults
+	local SPEED = 800
 
-function mt:__index(key)
-	if key == "dy" then
-		return properties[key]
-	end
-	return rawget(self, key)
+	t = {
+		x = x,
+		y = y,
+		prev = { x = x, y = y },
+		radius = radius or 10,
+		speed = speed or SPEED,
+		colliding = false,
+		dx = speed or SPEED,
+		dy = 0,
+		acceleration = 500,
+	}
+
+	-- Calculated attributes
+	t.negative_acceleration = -t.acceleration
+	t.negative_speed = -t.speed
+	t.width = t.radius * 2
+	t.height = t.width
+
+	setmetatable(t, { __index = Ball })
+
+	return t
 end
 
-function mt:__newindex(key, val)
-	if key == "speed" then
-		self[key] = val
-	elseif key == "dy" then
-		properties[key] = val
+setmetatable(Ball, Ball.mt)
 
-		if properties[key] > self.speed then
-			properties[key] = self.speed
-		elseif properties[key] < -self.speed then
-			properties[key] = -self.speed
+function Ball:update(dt)
+	-- Remember location
+	self.prev.x = self.x
+	self.prev.y = self.y
+
+	if collision.detect(self, objects.player) then
+		self:collide_player()
+	elseif collision.detect(self, objects.opponent) then
+		self:reverse_horizontal_direction()
+	elseif collision.detect(self, objects.ceiling) or collision.detect(self, objects.floor) then
+		self:reverse_vertical_direction()
+	elseif collision.detect(self, objects.left_wall) then
+		self:reverse_horizontal_direction()
+		if game.score > 0 then
+			game.score = game.score - 1
 		end
+	elseif collision.detect(self, objects.right_wall) then
+		self:reverse_horizontal_direction()
+		game.score = game.score + 1
+	end
+
+	if self.colliding then
+		helper.set_prev_frame(self)
+	end
+
+	self:calc_next_location(dt)
+end
+
+function Ball:calc_next_location(dt)
+	self.x = self.x + self.dx * dt
+	self.y = self.y + self.dy * dt
+end
+
+function Ball:collide_player()
+	self:reverse_horizontal_direction()
+
+	if love.keyboard.isDown("up") then
+		local zone = collision.compute_zone(self, objects.player)
+		self:set_dy(self.dy + self.negative_acceleration * zone * helper.get_slack())
+	elseif love.keyboard.isDown("down") then
+		local zone = collision.compute_zone(self, objects.player)
+		self:set_dy(self.dy + self.acceleration * zone * helper.get_slack())
 	else
-		rawset(self, key, val)
+		self:set_dy(self.dy * 0.9)
 	end
 end
 
-local SPEED = 800
-
-local function set_prev_frame(obj)
-	obj.x, obj.y = obj.prev.x, obj.prev.y
+function Ball:set_dy(num_val)
+	if num_val > self.speed then
+		self.dy = self.speed
+	elseif num_val < self.negative_speed then
+		self.dy = self.negative_speed
+	else
+		self.dy = num_val
+	end
 end
 
-local ball = {
-	x = screen.width / 2,
-	y = screen.height / 2,
-	prev = { x = nil, y = nil },
-	radius = 10,
-	speed = SPEED,
-	negative_speed = -SPEED,
-	colliding = false,
+function Ball:reverse_horizontal_direction()
+	self.dx = -self.dx
+end
 
-	dx = 1000,
+function Ball:reverse_vertical_direction()
+	self.dy = -self.dy
+end
 
-	update = function(self, dt)
-		if collision.detect(self, objects.player) then
-			self.dx = -self.dx
+function Ball:draw()
+	love.graphics.setColor(0.8, 0.5, 0) -- purple
+	love.graphics.circle("fill", self.x, self.y, self.radius)
+end
 
-			if love.keyboard.isDown("up") then
-				local zone = collision.compute_zone(self, objects.player)
-				self.dy = self.dy + self.negative_speed * zone * helper.get_slack()
-			elseif love.keyboard.isDown("down") then
-				local zone = collision.compute_zone(self, objects.player)
-				self.dy = self.dy + self.speed * zone * helper.get_slack()
-			else
-				self.dy = self.dy * 0.9
-			end
-		elseif collision.detect(self, objects.opponent) then
-			self.dx = -self.dx
-		elseif collision.detect(self, objects.ceiling) then
-			self.dy = -self.dy
-		elseif collision.detect(self, objects.floor) then
-			self.dy = -self.dy
-		elseif collision.detect(self, objects.left_wall) then
-			self.dx = -self.dx
-			if game.score > 0 then
-				game.score = game.score - 1
-			end
-		elseif collision.detect(self, objects.right_wall) then
-			self.dx = -self.dx
-			game.score = game.score + 1
-		end
-
-		if self.colliding then
-			set_prev_frame(self)
-			self.colliding = false
-		end
-
-		self.x = self.x + self.dx * dt
-		self.y = self.y + self.dy * dt
-
-		self.prev.x = self.x
-		self.prev.y = self.y
-	end,
-
-	draw = function(self)
-		love.graphics.circle("fill", self.x, self.y, self.radius)
-	end,
-}
-ball.prev.x = ball.x
-ball.prev.y = ball.y
-
-setmetatable(ball, mt)
-
-return ball
+return Ball
