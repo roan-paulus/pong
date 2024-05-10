@@ -2,9 +2,9 @@ local collision = {}
 
 ---Check if a collides with b
 ---@param object_a table
----@param y table
+---@param object_b table
 ---@return boolean
-function collision.detect(object_a, y)
+function collision.detect(object_a, object_b)
 	local a = {
 		left = object_a.x,
 		right = object_a.x + object_a.width,
@@ -13,10 +13,10 @@ function collision.detect(object_a, y)
 	}
 
 	local b = {
-		left = y.x,
-		right = y.x + y.width,
-		top = y.y,
-		bottom = y.y + y.height,
+		left = object_b.x,
+		right = object_b.x + object_b.width,
+		top = object_b.y,
+		bottom = object_b.y + object_b.height,
 	}
 
 	if a.right > b.left and a.left < b.right and a.top < b.bottom and a.bottom > b.top then
