@@ -9,7 +9,16 @@ function love.load()
 
 	game = {
 		score = 0,
+		running = true,
+		win = false,
+		lose = false,
 	}
+	function game:win()
+		return self.score >= 1
+	end
+	function game:lose()
+		return self.score <= -1
+	end
 
 	screen = {
 		width = love.graphics.getWidth(),
@@ -57,6 +66,14 @@ function love.load()
 end
 
 function love.update(dt)
+	if not game.running then
+		return
+	end
+	if game:win() or game:lose() then
+		game.running = false
+		return
+	end
+
 	if love.keyboard.isDown("up") and not collision.detect(objects.player, objects.ceiling) then
 		objects.player:moveUp(dt)
 	end
@@ -67,9 +84,7 @@ function love.update(dt)
 
 	objects.ball:update(dt)
 	if collision.detect(objects.ball, objects.left_wall) then
-		if game.score > 0 then
-			game.score = game.score - 1
-		end
+		game.score = game.score - 1
 		objects.ball = Ball(X, Y)
 	elseif collision.detect(objects.ball, objects.right_wall) then
 		game.score = game.score + 1
@@ -82,10 +97,21 @@ end
 function love.draw()
 	objects.player:draw()
 	objects.opponent:draw()
-	objects.ball:draw()
 
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.print(tostring(game.score), screen.width / 2, screen.height / 50)
+
+	if not game.running then
+		if game:win() then
+			love.graphics.print("You win!", screen.width / 2 - 70, screen.height / 2)
+			return
+		elseif game:lose() then
+			love.graphics.print("You lose!", screen.width / 2 - 70, screen.height / 2)
+			return
+		end
+	end
+
+	objects.ball:draw()
 end
 
 function love.keypressed(key)
