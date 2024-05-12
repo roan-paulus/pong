@@ -44,10 +44,6 @@ end
 setmetatable(Ball, Ball.mt)
 
 function Ball:update(dt)
-	-- Old location
-	self.prev.x = self.x
-	self.prev.y = self.y
-
 	self:set_next_location(dt)
 
 	if collision.detect(self, objects.player) then
@@ -62,13 +58,11 @@ function Ball:update(dt)
 		self:reverse_vertical_direction()
 		self.y = screen.height - self.VISUAL_CORRECTION_OFFSET
 	elseif collision.detect(self, objects.left_wall) then
-		self:reverse_horizontal_direction()
-		if game.score > 0 then
-			game.score = game.score - 1
-		end
+		game.score = game.score - 1
+		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = false })
 	elseif collision.detect(self, objects.right_wall) then
-		self:reverse_horizontal_direction()
 		game.score = game.score + 1
+		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = true })
 	end
 end
 

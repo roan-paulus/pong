@@ -84,14 +84,6 @@ function love.update(dt)
 	end
 
 	objects.ball:update(dt)
-	if collision.detect(objects.ball, objects.left_wall) then
-		game.score = game.score - 1
-		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = false })
-	elseif collision.detect(objects.ball, objects.right_wall) then
-		game.score = game.score + 1
-		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = true })
-	end
-
 	objects.opponent:update(dt)
 end
 
