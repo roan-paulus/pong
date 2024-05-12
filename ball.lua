@@ -47,8 +47,10 @@ function Ball:update(dt)
 	self:set_next_location(dt)
 
 	if collision.detect(self, objects.player) then
+		BAR_HIT_SFX:play()
 		self:collide_player()
 	elseif collision.detect(self, objects.opponent) then
+		BAR_HIT_SFX:play()
 		self:reverse_horizontal_direction()
 		self.x = objects.opponent.x - self.VISUAL_CORRECTION_OFFSET
 	elseif collision.detect(self, objects.ceiling) then
@@ -58,9 +60,11 @@ function Ball:update(dt)
 		self:reverse_vertical_direction()
 		self.y = screen.height - self.VISUAL_CORRECTION_OFFSET
 	elseif collision.detect(self, objects.left_wall) then
+		SCORE_DOWN_SFX:play()
 		game.score = game.score - 1
 		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = false })
 	elseif collision.detect(self, objects.right_wall) then
+		SCORE_UP_SFX:play()
 		game.score = game.score + 1
 		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = true })
 	end

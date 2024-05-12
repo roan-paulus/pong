@@ -6,6 +6,11 @@ local Ball = require("ball")
 function love.load()
 	-- Configuration
 	local WINNING_SCORE = 5
+	BAR_HIT_SFX = love.audio.newSource("assets/doorhit-98828.mp3", "static")
+	SCORE_UP_SFX = love.audio.newSource("assets/collect-points-190037.mp3", "static")
+	SCORE_DOWN_SFX = love.audio.newSource("assets/buzzer-4-183895.mp3", "static")
+	LOSE_SFX = love.audio.newSource("assets/wrong-answer-21-199825.mp3", "static")
+	WIN_SFX = love.audio.newSource("assets/success-fanfare-trumpets-6185.mp3", "static")
 
 	love.window.setFullscreen(true)
 	love.graphics.setFont(love.graphics.newFont(33))
@@ -98,9 +103,11 @@ function love.draw()
 		local HOW_TO_QUIT = "Press 'q' to quit."
 		local TEXT_LOCATION = screen.width / 2 - 190
 		if game:win() then
+			WIN_SFX:play()
 			love.graphics.print("You win! " .. HOW_TO_QUIT, TEXT_LOCATION, screen.height / 2)
 			return
 		elseif game:lose() then
+			LOSE_SFX:play()
 			love.graphics.print("You lose! " .. HOW_TO_QUIT, TEXT_LOCATION, screen.height / 2)
 			return
 		end
