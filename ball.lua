@@ -1,7 +1,9 @@
 local collision = require("collision")
 local helper = require("helper")
 
-local Ball = {}
+local Ball = {
+	VISUAL_CORRECTION_OFFSET = 12,
+}
 Ball.mt = {}
 
 function Ball.mt:__call(x, y, tabl, radius, speed)
@@ -42,14 +44,17 @@ end
 setmetatable(Ball, Ball.mt)
 
 function Ball:update(dt)
-	-- Remember location
+	-- Old location
 	self.prev.x = self.x
 	self.prev.y = self.y
+
+	self:set_next_location(dt)
 
 	if collision.detect(self, objects.player) then
 		self:collide_player()
 	elseif collision.detect(self, objects.opponent) then
 		self:reverse_horizontal_direction()
+		self.x = objects.opponent.x - self.VISUAL_CORRECTION_OFFSET
 	elseif collision.detect(self, objects.ceiling) or collision.detect(self, objects.floor) then
 		self:reverse_vertical_direction()
 	elseif collision.detect(self, objects.left_wall) then
@@ -62,20 +67,20 @@ function Ball:update(dt)
 		game.score = game.score + 1
 	end
 
-	if self.colliding then
-		helper.set_prev_frame(self)
-	end
-
-	self:calc_next_location(dt)
+	-- if self.colliding then
+	-- 	helper.set_prev_frame(self)
+	-- end
 end
 
-function Ball:calc_next_location(dt)
+function Ball:set_next_location(dt)
 	self.x = self.x + self.dx * dt
 	self.y = self.y + self.dy * dt
 end
 
 function Ball:collide_player()
 	self:reverse_horizontal_direction()
+
+	self.x = objects.player.x + objects.player.width + self.VISUAL_CORRECTION_OFFSET
 
 	if love.keyboard.isDown("up") then
 		local zone = collision.compute_zone(self, objects.player)

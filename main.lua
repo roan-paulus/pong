@@ -64,8 +64,6 @@ function love.load()
 		opponent = require("opponent"),
 		ball = Ball(X, Y),
 	}
-
-	objects.opponent.x = screen.width - objects.opponent.width
 end
 
 function love.update(dt)
@@ -94,7 +92,7 @@ function love.update(dt)
 		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = true })
 	end
 
-	objects.opponent:update(dt, objects.ball)
+	objects.opponent:update(dt)
 end
 
 function love.draw()

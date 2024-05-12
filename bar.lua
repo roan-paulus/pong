@@ -1,21 +1,6 @@
 local Bar = { mt = {} }
 Bar.mt.__index = Bar
 
--- Made for fun (can delete)
--- Add two bars together
-Bar.mt.__add = function(a, b)
-	local t = {}
-
-	t.x = a.x + b.x
-	t.y = a.y + b.y
-	t.width = a.width + b.width
-	t.height = a.height + b.height
-	t.speed = a.speed + b.speed
-
-	setmetatable(t, Bar.mt)
-	return t
-end
-
 function Bar:new(x, y)
 	local t = {
 		x = x,
