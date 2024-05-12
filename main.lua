@@ -1,9 +1,12 @@
-_G.love = require("love")
+love = require("love")
 local Bar = require("bar")
 local collision = require("collision")
 local Ball = require("ball")
 
 function love.load()
+	-- Configuration
+	local WINNING_SCORE = 2
+
 	love.window.setFullscreen(true)
 	love.graphics.setFont(love.graphics.newFont(33))
 
@@ -14,10 +17,10 @@ function love.load()
 		lose = false,
 	}
 	function game:win()
-		return self.score >= 1
+		return self.score >= WINNING_SCORE
 	end
 	function game:lose()
-		return self.score <= -1
+		return self.score <= -WINNING_SCORE
 	end
 
 	screen = {
@@ -25,7 +28,7 @@ function love.load()
 		height = love.graphics.getHeight(),
 	}
 
-	-- Default ball properties
+	-- Default ball starting location
 	X, Y = screen.width / 2, screen.height / 2
 
 	-- [[ Define objects ]]
@@ -85,10 +88,10 @@ function love.update(dt)
 	objects.ball:update(dt)
 	if collision.detect(objects.ball, objects.left_wall) then
 		game.score = game.score - 1
-		objects.ball = Ball(X, Y)
+		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = false })
 	elseif collision.detect(objects.ball, objects.right_wall) then
 		game.score = game.score + 1
-		objects.ball = Ball(X, Y)
+		objects.ball = Ball(X, Y, { dy = math.random(0, objects.ball.speed), reverse = true })
 	end
 
 	objects.opponent:update(dt, objects.ball)
@@ -102,11 +105,13 @@ function love.draw()
 	love.graphics.print(tostring(game.score), screen.width / 2, screen.height / 50)
 
 	if not game.running then
+		local HOW_TO_QUIT = "Press 'q' to quit."
+		local TEXT_LOCATION = screen.width / 2 - 190
 		if game:win() then
-			love.graphics.print("You win!", screen.width / 2 - 70, screen.height / 2)
+			love.graphics.print("You win! " .. HOW_TO_QUIT, TEXT_LOCATION, screen.height / 2)
 			return
 		elseif game:lose() then
-			love.graphics.print("You lose!", screen.width / 2 - 70, screen.height / 2)
+			love.graphics.print("You lose! " .. HOW_TO_QUIT, TEXT_LOCATION, screen.height / 2)
 			return
 		end
 	end

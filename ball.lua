@@ -4,9 +4,13 @@ local helper = require("helper")
 local Ball = {}
 Ball.mt = {}
 
-function Ball.mt:__call(x, y, radius, speed)
+function Ball.mt:__call(x, y, tabl, radius, speed)
 	-- Defaults
 	local SPEED = 800
+
+	if tabl == nil then
+		tabl = {}
+	end
 
 	t = {
 		x = x,
@@ -16,9 +20,13 @@ function Ball.mt:__call(x, y, radius, speed)
 		speed = speed or SPEED,
 		colliding = false,
 		dx = speed or SPEED,
-		dy = 0,
+		dy = tabl.dy or 0,
 		acceleration = 500,
 	}
+
+	if tabl.reverse then
+		t.dx = -t.dx
+	end
 
 	-- Calculated attributes
 	t.negative_acceleration = -t.acceleration
