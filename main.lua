@@ -5,7 +5,7 @@ local Ball = require("ball")
 
 function love.load()
 	-- Configuration
-	local WINNING_SCORE = 2
+	local WINNING_SCORE = 5
 
 	love.window.setFullscreen(true)
 	love.graphics.setFont(love.graphics.newFont(33))

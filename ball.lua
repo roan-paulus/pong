@@ -2,13 +2,13 @@ local collision = require("collision")
 local helper = require("helper")
 
 local Ball = {
-	VISUAL_CORRECTION_OFFSET = 12,
+	VISUAL_CORRECTION_OFFSET = 20,
 }
 Ball.mt = {}
 
 function Ball.mt:__call(x, y, tabl, radius, speed)
 	-- Defaults
-	local SPEED = 800
+	local SPEED = 1500
 
 	if tabl == nil then
 		tabl = {}
@@ -55,8 +55,12 @@ function Ball:update(dt)
 	elseif collision.detect(self, objects.opponent) then
 		self:reverse_horizontal_direction()
 		self.x = objects.opponent.x - self.VISUAL_CORRECTION_OFFSET
-	elseif collision.detect(self, objects.ceiling) or collision.detect(self, objects.floor) then
+	elseif collision.detect(self, objects.ceiling) then
 		self:reverse_vertical_direction()
+		self.y = self.VISUAL_CORRECTION_OFFSET
+	elseif collision.detect(self, objects.floor) then
+		self:reverse_vertical_direction()
+		self.y = screen.height - self.VISUAL_CORRECTION_OFFSET
 	elseif collision.detect(self, objects.left_wall) then
 		self:reverse_horizontal_direction()
 		if game.score > 0 then
@@ -66,10 +70,6 @@ function Ball:update(dt)
 		self:reverse_horizontal_direction()
 		game.score = game.score + 1
 	end
-
-	-- if self.colliding then
-	-- 	helper.set_prev_frame(self)
-	-- end
 end
 
 function Ball:set_next_location(dt)
