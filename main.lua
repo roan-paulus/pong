@@ -5,7 +5,7 @@ local Ball = require("ball")
 
 function love.load()
 	-- Configuration
-	local WINNING_SCORE = 5
+	local WINNING_SCORE = 2
 	BAR_HIT_SFX = love.audio.newSource("assets/doorhit-98828.mp3", "static")
 	SCORE_UP_SFX = love.audio.newSource("assets/collect-points-190037.mp3", "static")
 	SCORE_DOWN_SFX = love.audio.newSource("assets/buzzer-4-183895.mp3", "static")
